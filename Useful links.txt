@@ -1,0 +1,11 @@
+https://vertex-academy.com/tutorials/ru/pattern-builder-java/
+https://www.baeldung.com/java-connection-pooling
+https://htmlacademy.ru/blog/boost/tools/how-to-squash-commits-and-why-it-is-needed
+
+Полезные ссылки:
+
+https://javarush.ru/groups/posts/1684-pattern-command-svoimi-slovami
+
+https://www.baeldung.com/java-command-pattern
+Познакомиться с паттерном Команда
+В ApplicationServlet использовать данный паттерн для редиректа по страницам.

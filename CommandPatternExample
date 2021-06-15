@@ -1,0 +1,141 @@
+1. Определяем интерфейс команды
+public interface BaseCommand {
+
+    String executeCommand(HttpServletRequest request) throws CommandException;
+
+}
+
+2. Делаем конкретный класс-команду, которая будет отвечать, например, за вход юзера в систему. Класс реализует интерфейс BaseCommand и переопределяет его метод executeCommand()
+public class AuthorizationCommandImpl implements BaseCommand {
+
+    private static final Logger LOGGER = Logger.getLogger(AuthorizationCommandImpl.class);
+    private static final String MESSAGE_VALUE = "message_incorrect_login_password";
+    private static final String DEFAULT_ROLE = "admin";
+    private UserService userService = new UserService();
+
+    @Override
+    public String executeCommand(HttpServletRequest request) throws CommandException {
+        LOGGER.debug("executeCommand method is processed...");
+        String login = request.getParameter(LOGIN_REQUEST_PARAM);
+        String pass = request.getParameter(PASS_REQUEST_PARAM);
+        validateParamNotNull(login);
+        validateParamNotNull(pass);
+        User user = userService.getUserByCreds(login, pass);
+        LOGGER.debug("Username is " + user.getEmail());
+        String page = checkReceivedUser(user, request);
+        LOGGER.debug("Page is " + page);
+        return checkReceivedUser(user, request);
+    }
+
+    private String checkReceivedUser(User user, HttpServletRequest request) {
+        LOGGER.debug("checkReceivedUser method is processed...");
+        if (user != null) {
+            request.getSession().setAttribute(LOGIN_REQUEST_PARAM, user);
+            return HOME_PAGE;
+        } else {
+            request.setAttribute(REQUEST_PARAM_INFO_MESSAGE, MESSAGE_VALUE);
+            return SIGN_IN_PAGE;
+        }
+    }
+}
+
+По такому же принципу делаем остальные классы-команды, например:
+public class SignOutCommandImpl implements BaseCommand {
+
+    @Override
+    public String executeCommand(HttpServletRequest request) throws CommandException {
+        request.getSession().invalidate();
+        return PAGE_INDEX;
+    }
+}
+
+
+public class StartPageCommandImpl implements BaseCommand {
+
+    @Override
+    public String executeCommand(HttpServletRequest request) throws CommandException {
+        return START_PAGE;
+    }
+}
+
+и т.д.
+
+3. Не забываем про отдельный класс-исключение для команд
+public class CommandException extends Exception {
+
+    public CommandException(String message) {
+        super(message);
+    }
+
+    public CommandException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+}
+
+4. Определяем класс-фабрику, с помощью которой будем создавать конкретные классы-команды
+public class CommandFactory {
+
+    private static final Logger LOGGER = Logger.getLogger(CommandFactory.class);
+
+    
+    public static BaseCommand defineCommand(HttpServletRequest request) {
+        BaseCommand command;
+        String inputCommand = request.getParameter(COMMAND_REQUEST_PARAM);
+        LOGGER.debug("Current command is " + inputCommand);
+        if (inputCommand == null || inputCommand.isEmpty()) {
+            inputCommand = START_PAGE_COMMAND;
+        }
+
+        switch (inputCommand) {
+            case AUTHORIZATION_COMMAND:
+                command = new AuthorizationCommandImpl();
+                break;
+            case SIGNOUT_COMMAND:
+                command = new SignOutCommandImpl();
+                break;
+            default:
+                command = new StartPageCommandImpl();
+                break;
+        }
+        return command;
+    }
+}
+
+5. В ApplicationServlet используем наши команды для редиректа на страницы
+public class ServletController extends HttpServlet {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    private void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        LOGGER.debug("Inside processRequest method!");
+        BaseCommand requestCommand = CommandFactory.defineCommand(request);
+        String path = null;
+        try {
+            path = requestCommand.executeCommand(request);
+            LOGGER.debug("Path is " + path);
+            RequestDispatcher dispatcher = request.getRequestDispatcher(path);
+            dispatcher.forward(request, response);
+        } catch (CommandException e) {
+            request.getRequestDispatcher(SIGN_IN_PAGE).forward(request, response);
+            LOGGER.error(e.getMessage(), e);
+        }
+
+    }
+
+}
+ 
+6. Передаем параметр команды в реквесте
+<input type="hidden" name="command" value="authorization"/>
+				<label for="username">Username:</label>
+				<input type="text" id="username" name="username">
+				<label for="password">Password:</label>
+
+</input>
+
+https://javarush.ru/groups/posts/1684-pattern-command-svoimi-slovami
+https://www.youtube.com/watch?v=8gE-icd93WA
