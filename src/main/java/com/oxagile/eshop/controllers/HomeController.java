@@ -1,6 +1,6 @@
 package com.oxagile.eshop.controllers;
 
-import com.oxagile.eshop.service.serviceimpl.CategoryServiceImpl;
+import com.oxagile.eshop.service.CategoryService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -16,20 +16,20 @@ import static com.oxagile.eshop.controllers.pools.ParamsPool.ERROR_NAME_ATTRIBUT
 public class HomeController {
     private static final Logger LOG = LogManager.getLogger(HomeController.class);
 
-    private final CategoryServiceImpl categoryService;
+    private final CategoryService categoryService;
 
-    public HomeController(CategoryServiceImpl categoryService) {
+    public HomeController(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
 
     @GetMapping("/home")
     public ModelAndView showHomePage(ModelAndView modelAndView) {
-        LOG.debug("Call method homePage to show a list of categories...");
+        LOG.info("Call method homePage to show a list of categories...");
         try {
             modelAndView.addObject(CATEGORIES_LIST_ATTRIBUTE, categoryService.getAll());
             modelAndView.setViewName(HOME_PAGE);
         } catch (Exception e) {
-            LOG.debug("Failed to show categories!");
+            LOG.info("Failed to show categories!");
             modelAndView.addObject(ERROR_NAME_ATTRIBUTE, e.getMessage());
             modelAndView.setViewName(PAGE_ERROR);
         }

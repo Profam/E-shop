@@ -1,22 +1,18 @@
 package com.oxagile.eshop.dao;
 
 import com.oxagile.eshop.domain.BaseEntity;
-import com.oxagile.eshop.exceptions.ConnectionPoolException;
 import com.oxagile.eshop.exceptions.DaoException;
 
 import java.util.List;
 
 public interface BaseDAO<T extends BaseEntity> {
+    T create(T entity) throws DaoException;
 
-    ConnectionPool databaseConnection = ConnectionPool.getInstance();
+    T read(int id) throws DaoException;
 
-    T create(T entity) throws ConnectionPoolException, DaoException;
+    List<T> readAll() throws DaoException;
 
-    T read(int id) throws ConnectionPoolException, DaoException;
+    void update(T entity) throws DaoException;
 
-    List<T> readAll() throws ConnectionPoolException, DaoException;
-
-    void update(T entity) throws ConnectionPoolException, DaoException;
-
-    void delete(int id) throws ConnectionPoolException, DaoException;
+    void delete(int id) throws DaoException;
 }

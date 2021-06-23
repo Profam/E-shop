@@ -1,70 +1,71 @@
 package com.oxagile.eshop.service.serviceimpl;
 
-import com.oxagile.eshop.dao.daoimpl.ProductImageDAOImpl;
+import com.oxagile.eshop.dao.ProductImageDAO;
 import com.oxagile.eshop.domain.ProductImage;
 import com.oxagile.eshop.exceptions.ServiceException;
 import com.oxagile.eshop.service.ProductImageService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class ProductImageServiceImpl implements ProductImageService {
-    private static final Logger log = LogManager.getLogger(ProductImageServiceImpl.class);
+    private static final Logger LOG = LogManager.getLogger(ProductImageServiceImpl.class);
 
-    private final ProductImageDAOImpl productImageDAOImpl;
+    private final ProductImageDAO productImageDAO;
 
-    public ProductImageServiceImpl(ProductImageDAOImpl productImageDAOImpl) {
-        this.productImageDAOImpl = productImageDAOImpl;
+    public ProductImageServiceImpl(ProductImageDAO productImageDAO) {
+        this.productImageDAO = productImageDAO;
     }
-
+    @Transactional
     @Override
     public ProductImage save(ProductImage entity) throws ServiceException {
-        log.info("Try to save product image... : " + entity.toString());
+        LOG.info("Try to save product image: {}", entity);
         try {
-            return productImageDAOImpl.create(entity);
+            return productImageDAO.create(entity);
         } catch (Exception e) {
             throw new ServiceException("Failed to save product image!", e);
         }
     }
-
+    @Transactional
     @Override
     public ProductImage getById(int id) throws ServiceException {
-        log.info("Try to find product image... : " + id);
+        LOG.info("Try to find product image, id: {}", id);
         try {
-            return productImageDAOImpl.read(id);
+            return productImageDAO.read(id);
         } catch (Exception e) {
             throw new ServiceException("Failed to find product image!", e);
         }
     }
-
+    @Transactional
     @Override
     public List<ProductImage> getAll() throws ServiceException {
-        log.info("Try to find product image...");
+        LOG.info("Try to find product images...");
         try {
-            return productImageDAOImpl.readAll();
+            return productImageDAO.readAll();
         } catch (Exception e) {
             throw new ServiceException("Failed to find any product image!", e);
         }
     }
-
+    @Transactional
     @Override
     public void update(ProductImage entity) throws ServiceException {
-        log.info("Try to update product image... " + entity.toString());
+        LOG.info("Try to update product image: {}", entity);
         try {
-            productImageDAOImpl.update(entity);
+            productImageDAO.update(entity);
         } catch (Exception e) {
             throw new ServiceException("Failed to update product image!", e);
         }
     }
-
+    @Transactional
     @Override
     public void deleteById(int id) throws ServiceException {
-        log.info("Try to delete product image... " + id);
+        LOG.info("Try to delete product image, id: {}", id);
         try {
-            productImageDAOImpl.delete(id);
+            productImageDAO.delete(id);
         } catch (Exception e) {
             throw new ServiceException("Failed to delete product image!", e);
         }

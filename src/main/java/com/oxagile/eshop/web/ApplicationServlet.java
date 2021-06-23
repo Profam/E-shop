@@ -1,5 +1,8 @@
 package com.oxagile.eshop.web;
 
+import com.oxagile.eshop.config.JpaConfig;
+import com.oxagile.eshop.config.SecurityConfig;
+import com.oxagile.eshop.config.WebConfig;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -18,6 +21,9 @@ public class ApplicationServlet implements WebApplicationInitializer {
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext root = new AnnotationConfigWebApplicationContext();
         root.scan("com.oxagile.eshop");
+       /* root.register(WebConfig.class);
+        root.register(JpaConfig.class);
+        root.register(SecurityConfig.class);*/
         servletContext.addListener(new ContextLoaderListener(root));
 
         ServletRegistration.Dynamic appDispatcher =
