@@ -4,42 +4,46 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import java.sql.Date;
 import java.util.List;
+
+import static com.oxagile.eshop.controllers.pools.ParamsPool.ENTITY_ID_PARAM;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.ORDER_LIST_ATTRIBUTE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.ORDER_ORDER_ID_COLUMN;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.ORDER_PRODUCTS_TABLE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.ORDER_USER_ID_COLUMN;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_PRODUCT_ID_COLUMN;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "orders")
+@Table(name = ORDER_LIST_ATTRIBUTE)
 public class Order extends BaseEntity {
-    @Column(name = "user_id")
+    @Column(name = ORDER_USER_ID_COLUMN)
     private int userId;
     private Date date;
     private int price;
-    @ManyToMany(mappedBy = "orders")
-    @ToString.Exclude
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = ORDER_PRODUCTS_TABLE,
+            joinColumns = {
+                    @JoinColumn(name = ORDER_ORDER_ID_COLUMN, referencedColumnName = ENTITY_ID_PARAM)
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = PRODUCT_PRODUCT_ID_COLUMN, referencedColumnName = ENTITY_ID_PARAM)
+            }
+    )
     private List<Product> products;
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
 
     private Order(Builder builder) {
         this.id = builder.id;

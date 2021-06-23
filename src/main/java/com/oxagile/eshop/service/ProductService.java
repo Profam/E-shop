@@ -10,4 +10,9 @@ public interface ProductService extends BaseService<Product> {
     List<Product> getProductsListByParams(Map<String, String> parameters, int currentPage, int productsCount) throws ServiceException;
 
     long getCountOfProductsForCategory(int categoryId) throws ServiceException;
+
+    List<Product> addProductToBasket(int productId, List<Product> products) throws ServiceException;
+
+    List<Product> removeProductFromBasket(int productId, List<Product> products) throws ServiceException;
 }
+

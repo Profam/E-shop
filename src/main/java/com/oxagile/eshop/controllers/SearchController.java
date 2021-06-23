@@ -2,8 +2,8 @@ package com.oxagile.eshop.controllers;
 
 import com.oxagile.eshop.domain.Product;
 import com.oxagile.eshop.exceptions.ServiceException;
-import com.oxagile.eshop.service.serviceimpl.CategoryServiceImpl;
-import com.oxagile.eshop.service.serviceimpl.ProductServiceImpl;
+import com.oxagile.eshop.service.CategoryService;
+import com.oxagile.eshop.service.ProductService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -18,42 +18,42 @@ import java.util.Optional;
 
 import static com.oxagile.eshop.controllers.pools.PagesPathesPool.PAGE_ERROR;
 import static com.oxagile.eshop.controllers.pools.PagesPathesPool.SEARCH_PAGE;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.DEFAULT_RECORDS_COUNT_PER_PAGE;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.SEARCH_REQUEST_PARAM;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.ERROR_NAME_ATTRIBUTE;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.NUMBER_OF_PRODUCT_PAGES;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.CATEGORIES_LIST_ATTRIBUTE;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.CATEGORY_ID_PARAM;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.DEFAULT_RECORDS_COUNT_PER_PAGE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.ERROR_NAME_ATTRIBUTE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.NUMBER_OF_PRODUCT_PAGES;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_LIST_ATTRIBUTE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_LIST_CURRENT_PAGE;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_PRICE_FROM_ATTRIBUTE;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_PRICE_TO_ATTRIBUTE;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_RECORDS_PER_PAGE;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_LIST_CURRENT_PAGE;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_RECORDS_ALL;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_LIST_ATTRIBUTE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_RECORDS_PER_PAGE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.SEARCH_REQUEST_PARAM;
 
 @Controller
 public class SearchController {
     private static final Logger LOG = LogManager.getLogger(SearchController.class);
 
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
 
-    private final CategoryServiceImpl categoryService;
+    private final CategoryService categoryService;
 
-    public SearchController(ProductServiceImpl productService, CategoryServiceImpl categoryService) {
+    public SearchController(ProductService productService, CategoryService categoryService) {
         this.productService = productService;
         this.categoryService = categoryService;
     }
 
     @GetMapping("/search")
     public ModelAndView showSearchResult(
-            @RequestParam(value = SEARCH_REQUEST_PARAM, required = false)String searchParam,
-            @RequestParam(value = CATEGORY_ID_PARAM, required = false)String categoryIdParam,
-            @RequestParam(value = PRODUCT_PRICE_FROM_ATTRIBUTE, required = false)String priceFromParam,
-            @RequestParam(value = PRODUCT_PRICE_TO_ATTRIBUTE, required = false)String priceToParam,
-            @RequestParam(value = PRODUCT_RECORDS_PER_PAGE, required = false)String recordsPerPageParam,
-            @RequestParam(value = PRODUCT_LIST_CURRENT_PAGE, required = false)String currentPageParam,
+            @RequestParam(value = SEARCH_REQUEST_PARAM, required = false) String searchParam,
+            @RequestParam(value = CATEGORY_ID_PARAM, required = false) String categoryIdParam,
+            @RequestParam(value = PRODUCT_PRICE_FROM_ATTRIBUTE, required = false) String priceFromParam,
+            @RequestParam(value = PRODUCT_PRICE_TO_ATTRIBUTE, required = false) String priceToParam,
+            @RequestParam(value = PRODUCT_RECORDS_PER_PAGE, required = false) String recordsPerPageParam,
+            @RequestParam(value = PRODUCT_LIST_CURRENT_PAGE, required = false) String currentPageParam,
             ModelAndView modelAndView) {
-        LOG.debug("Call showSearchResult method to show products by search request parameters");
+        LOG.info("Call showSearchResult method to show products by search request parameters");
         Optional<String> searchRequestKey = Optional.ofNullable(searchParam);
         Optional<String> categoryIdKey = Optional.ofNullable(categoryIdParam);
         Optional<String> priceFromKey = Optional.ofNullable(priceFromParam);
@@ -104,14 +104,19 @@ public class SearchController {
             modelAndView.addObject(PRODUCT_RECORDS_ALL, productsCount);
             modelAndView.setViewName(SEARCH_PAGE);
         } catch (Exception e) {
-            LOG.debug("Failed to show product!");
+            LOG.info("Failed to show product!");
             modelAndView.addObject(ERROR_NAME_ATTRIBUTE, e.getMessage());
             modelAndView.setViewName(PAGE_ERROR);
         }
         return modelAndView;
     }
 
-    private Map<String, String> fillMapOfSearchParameters(ModelAndView modelAndView, Optional<String> searchRequestKey, Optional<String> categoryIdKey, Optional<String> priceFromKey, Optional<String> priceToKey) {
+    private Map<String, String> fillMapOfSearchParameters(
+            ModelAndView modelAndView,
+            Optional<String> searchRequestKey,
+            Optional<String> categoryIdKey,
+            Optional<String> priceFromKey,
+            Optional<String> priceToKey) {
         Map<String, String> searchParameters = new HashMap<>();
 
         if (searchRequestKey.isPresent() && !searchRequestKey.get().isEmpty()) {

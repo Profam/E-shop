@@ -19,7 +19,6 @@
 <body>
 
 <div class="container" style="text-align: center;">
-    <%--@elvariable id="userDetails" type="com.oxagile.eshop.domain.User"--%>
     <form:form class="form-signuup" method="POST" action="${pageContext.request.contextPath}/register/new" modelAttribute="userDetails">
         <h2 class="form-signup-heading">Регистрация</h2>
         <p>

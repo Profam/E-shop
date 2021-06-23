@@ -6,51 +6,41 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_ATTRIBUTE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_CATEGORY_ID_COLUMN;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_LIST_ATTRIBUTE;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "products")
+@Table(name = PRODUCT_LIST_ATTRIBUTE)
 public class Product extends BaseEntity {
 
-    @Column(name = "category_id", insertable = false, updatable = false)
+    @Column(name = PRODUCT_CATEGORY_ID_COLUMN, insertable = false, updatable = false)
     private int categoryId;
     private String name;
     private String description;
     private int price;
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = PRODUCT_CATEGORY_ID_COLUMN)
     @ToString.Exclude
     private Category category;
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "orders_products",
-            joinColumns = {
-                    @JoinColumn(name = "order_id")
-            },
-            inverseJoinColumns = {
-                    @JoinColumn(name = "product_id")
-            }
-    )
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = PRODUCT_LIST_ATTRIBUTE)
     @ToString.Exclude
-    private Set<Order> orders = new HashSet<>();
-    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
-    @ToString.Exclude
+    private List<Order> orders;
+    @OneToMany(mappedBy = PRODUCT_ATTRIBUTE, fetch = FetchType.EAGER)
     private List<ProductImage> images;
 
     private Product(Builder builder) {

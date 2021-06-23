@@ -1,7 +1,7 @@
 package com.oxagile.eshop.controllers;
 
 import com.oxagile.eshop.domain.User;
-import com.oxagile.eshop.service.serviceimpl.UserServiceImpl;
+import com.oxagile.eshop.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import static com.oxagile.eshop.controllers.pools.PagesPathesPool.PAGE_ERROR;
@@ -26,39 +25,36 @@ import static com.oxagile.eshop.controllers.pools.ParamsPool.USER_SESSION_PARAM;
 public class RegisterController {
     private static final Logger LOG = LogManager.getLogger(RegisterController.class);
 
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    public RegisterController(UserServiceImpl userService) {
+    public RegisterController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping
     public ModelAndView showRegisterPage() {
-        return new ModelAndView(SIGN_UP_PAGE, USER_SESSION_PARAM, new User());
+        return new ModelAndView(SIGN_UP_PAGE, USER_SESSION_PARAM, User.newBuilder().build());
     }
 
     @PostMapping("/new")
     public ModelAndView registerNewUser(
             @ModelAttribute(USER_SESSION_PARAM) User user,
             @RequestParam(USER_CONFIRM_EMAIL_PARAM) String confirmEmail,
-            BindingResult result, SessionStatus sessionStatus,
+            BindingResult result,
             ModelAndView modelAndView) {
-        LOG.debug("Call method registerNewUser to try to register the user...");
+        LOG.info("Call method registerNewUser to try to register the user...");
         try {
             if (result.hasErrors()) {
                 modelAndView.setViewName(PAGE_ERROR);
             }
-            if (userService.validateBirthday(user.getBirthday()) &&
-                    user.getEmail().equals(confirmEmail)) {
-                userService.save(user);
-                LOG.debug("Successful registration!");
+            if (userService.validateUserCredits(user, confirmEmail)) {
+                userService.createNewUser(user);
                 modelAndView.setViewName(SIGN_IN_PAGE);
-                sessionStatus.setComplete();
             } else {
                 modelAndView.setViewName(SIGN_UP_PAGE);
             }
         } catch (Exception e) {
-            LOG.debug("Failed to register user, try again!");
+            LOG.info("Failed to register user, try again!");
             modelAndView.addObject(ERROR_NAME_ATTRIBUTE, e.getMessage());
             modelAndView.setViewName(PAGE_ERROR);
         }

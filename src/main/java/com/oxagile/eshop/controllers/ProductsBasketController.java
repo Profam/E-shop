@@ -1,9 +1,8 @@
 package com.oxagile.eshop.controllers;
 
-import com.oxagile.eshop.domain.Order;
 import com.oxagile.eshop.domain.Product;
-import com.oxagile.eshop.service.serviceimpl.OrderServiceImpl;
-import com.oxagile.eshop.service.serviceimpl.ProductServiceImpl;
+import com.oxagile.eshop.service.OrderService;
+import com.oxagile.eshop.service.ProductService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -17,20 +16,18 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.oxagile.eshop.controllers.pools.PagesPathesPool.PAGE_ERROR;
 import static com.oxagile.eshop.controllers.pools.PagesPathesPool.BASKET_PAGE;
 import static com.oxagile.eshop.controllers.pools.PagesPathesPool.HOME_PAGE;
+import static com.oxagile.eshop.controllers.pools.PagesPathesPool.PAGE_ERROR;
 import static com.oxagile.eshop.controllers.pools.PagesPathesPool.SIGN_IN_PAGE;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.ERROR_NAME_ATTRIBUTE;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_LIST_ATTRIBUTE;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_ID_PARAM;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.USER_ID_PARAM;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.ORDER_TOTAL_PRICE_PARAM;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_ID_PARAM;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_LIST_ATTRIBUTE;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.USER_ID_PARAM;
 
 @Controller
 @SessionAttributes(PRODUCT_LIST_ATTRIBUTE)
@@ -38,11 +35,11 @@ import static com.oxagile.eshop.controllers.pools.ParamsPool.ORDER_TOTAL_PRICE_P
 public class ProductsBasketController {
     private static final Logger LOG = LogManager.getLogger(ProductsBasketController.class);
 
-    private final ProductServiceImpl productService;
+    private final ProductService productService;
 
-    private final OrderServiceImpl orderService;
+    private final OrderService orderService;
 
-    public ProductsBasketController(ProductServiceImpl productService, OrderServiceImpl orderService) {
+    public ProductsBasketController(ProductService productService, OrderService orderService) {
         this.productService = productService;
         this.orderService = orderService;
     }
@@ -54,23 +51,17 @@ public class ProductsBasketController {
 
     @GetMapping
     public String showBasketPage() {
-        LOG.debug("Call method basketPage to show a list of products in basket...");
         return BASKET_PAGE;
     }
 
     @PostMapping("/products/{productId}/add")
     public ModelAndView addProductToBasket(
-            @PathVariable(PRODUCT_ID_PARAM) String productId,
+            @PathVariable(PRODUCT_ID_PARAM) int productId,
             @ModelAttribute(PRODUCT_LIST_ATTRIBUTE) List<Product> products,
             ModelAndView modelAndView) {
-        LOG.debug("Call addReceivedProductToBasket method to add product in basket...");
-        Product product;
+        LOG.info("Call addReceivedProductToBasket method to add product in basket...");
         try {
-            product = productService.getById(Integer.parseInt(productId));
-            if (!products.contains(product)) {
-                products.add(product);
-                LOG.debug("Successful add product in basket!");
-            }
+            productService.addProductToBasket(productId, products);
             modelAndView.setViewName(BASKET_PAGE);
         } catch (Exception e) {
             LOG.debug("Failed to add product in basket!");
@@ -82,20 +73,15 @@ public class ProductsBasketController {
 
     @GetMapping("/products/{productId}/remove")
     public ModelAndView deleteProductFromBasketById(
-            @PathVariable(PRODUCT_ID_PARAM) String productId,
+            @PathVariable(PRODUCT_ID_PARAM) int productId,
             @ModelAttribute(PRODUCT_LIST_ATTRIBUTE) List<Product> products,
             ModelAndView modelAndView) {
-        LOG.debug("Call deleteProductById method to delete product from basket by id...");
-        Product product;
+        LOG.info("Call deleteProductById method to delete product from basket by id...");
         try {
-            product = productService.getById(Integer.parseInt(productId));
-            if (products.contains(product)) {
-                products.remove(product);
-            }
-            LOG.debug("Successful delete product from basket!");
+            productService.removeProductFromBasket(productId, products);
             modelAndView.setViewName(BASKET_PAGE);
         } catch (Exception e) {
-            LOG.debug("Failed to delete product from basket!");
+            LOG.info("Failed to delete product from basket!");
             modelAndView.addObject(ERROR_NAME_ATTRIBUTE, e.getMessage());
             modelAndView.setViewName(PAGE_ERROR);
         }
@@ -109,25 +95,15 @@ public class ProductsBasketController {
             @ModelAttribute(PRODUCT_LIST_ATTRIBUTE) List<Product> products,
             ModelAndView modelAndView,
             SessionStatus sessionStatus) {
-        LOG.debug("Call saveUserOrder method to try to save new User's order...");
-        if (totalPrice != null && userId.isEmpty()) {
-            modelAndView.setViewName(SIGN_IN_PAGE);
-            return modelAndView;
-        }
-        Order order;
+        LOG.info("Call saveUserOrder method to try to save new User's order...");
         try {
-            order = Order.newBuilder()
-                    .withUserId(Integer.parseInt(userId))
-                    .withDate(Date.valueOf(LocalDate.now()))
-                    .withPrice(Integer.parseInt(totalPrice))
-                    .withProducts(products)
-                    .build();
-            order = orderService.save(order);
-            if (order != null) {
-                orderService.saveOrderProductsInfo(order, products);
+            if (orderService.isNotAuthorized(userId)) {
+                modelAndView.setViewName(SIGN_IN_PAGE);
+            } else {
+                orderService.createOrder(userId, totalPrice);
+                sessionStatus.setComplete();
+                modelAndView.setViewName(HOME_PAGE);
             }
-            sessionStatus.setComplete();
-            modelAndView.setViewName(HOME_PAGE);
         } catch (Exception e) {
             LOG.debug("Failed to save user's order info!");
             modelAndView.addObject(ERROR_NAME_ATTRIBUTE, e.getMessage());

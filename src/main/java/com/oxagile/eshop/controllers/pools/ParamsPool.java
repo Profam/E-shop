@@ -1,6 +1,7 @@
 package com.oxagile.eshop.controllers.pools;
 
 public interface ParamsPool {
+    String ENTITY_ID_PARAM = "id";
     String USER_ID_PARAM = "userId";
     String USER_NAME_PARAM = "name";
     String USER_SURNAME_PARAM = "surname";
@@ -9,10 +10,16 @@ public interface ParamsPool {
     String USER_CONFIRM_EMAIL_PARAM = "confirmEmail";
     String USER_PASSWORD_PARAM = "password";
     String USER_BIRTHDAY_PARAM = "birthday";
+    String USER_USERS_TABLE = "users";
     String CATEGORY_ID_PARAM = "categoryId";
     String CATEGORY_PARAM = "category";
+    String CATEGORY_NAME_PARAM = "name";
     String CATEGORIES_LIST_ATTRIBUTE = "categories";
+    String CATEGORY_IMAGE_PATH_COLUMN = "image_path";
     String PRODUCT_ID_PARAM = "productId";
+    String PRODUCT_NAME_PARAM = "name";
+    String PRODUCT_DESCRIPTION_PARAM = "description";
+    String PRODUCT_PRICE_PARAM = "price";
     String PRODUCT_ATTRIBUTE = "product";
     String PRODUCT_RECORDS_PER_PAGE = "recordsPerPage";
     String PRODUCT_RECORDS_ALL = "productsCount";
@@ -20,10 +27,18 @@ public interface ParamsPool {
     String PRODUCT_PRICE_FROM_ATTRIBUTE = "priceFrom";
     String PRODUCT_LIST_ATTRIBUTE = "products";
     String PRODUCT_LIST_CURRENT_PAGE = "currentPage";
+    String PRODUCT_PRODUCT_ID_COLUMN = "product_id";
+    String PRODUCT_CATEGORY_ID_COLUMN = "category_id";
     String PRODUCT_IMAGES_ATTRIBUTE = "productImages";
+    String PRODUCT_IMAGES_TABLE = "product_images";
+    String PRODUCT_IMAGES_PRODUCT_ID_COLUMN = "product_id";
+    String PRODUCT_IMAGES_PATH_COLUMN = "path";
     String ORDER_PRICE_PARAM = "price";
     String ORDER_TOTAL_PRICE_PARAM = "totalPrice";
     String ORDER_LIST_ATTRIBUTE = "orders";
+    String ORDER_USER_ID_COLUMN = "user_id";
+    String ORDER_ORDER_ID_COLUMN = "order_id";
+    String ORDER_PRODUCTS_TABLE = "orders_products";
     String DEFAULT_ROLE = "admin";
     String INCORRECT_LOGIN_MESSAGE_VALUE = "message_incorrect_login_password";
     String NUMBER_OF_PRODUCT_PAGES = "numberOfPages";
