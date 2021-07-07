@@ -1,13 +1,15 @@
 <%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <jsp:include page="header.jsp"/>
 <c:set var="totalPrice" value="${0}" scope="session"/>
 <c:set value="${sessionScope.products}" var="products"/>
-<c:set value="${sessionScope.userDetails}" var="user"/>
 <c:set var="myContext" value="${pageContext.request.contextPath}"/>
 
-<form action="${myContext}/basket/products/order/save" method="post">
-    <input type="hidden" name="userId" value="${user.id}"/>
+<form action="${myContext}/basket/products/order/createOrder" method="post">
+    <sec:authorize access="isAuthenticated()">
+        <input type="hidden" name="email" value="<sec:authentication property="principal.username"/>"/>
+    </sec:authorize>
     <input type="hidden" name="products" value="${products}"/>
 
     <c:if test="${not empty products}">
@@ -40,7 +42,12 @@
                 </div>
             </c:if>
             <div class="center-block w-50 m-auto">
-                <button class="btn btn-primary btn-block w-75" type="submit">Оформить заказ</button>
+                <sec:authorize access="isAuthenticated()">
+                    <button class="btn btn-primary btn-block w-75" type="submit">Оформить заказ</button>
+                </sec:authorize>
+                <sec:authorize access="!isAuthenticated()">
+                    <a class="btn btn-primary btn-block w-75" href="${pageContext.request.contextPath}/login">Оформить заказ</a>
+                </sec:authorize>
                 <input type="hidden" name="totalPrice" value="${totalPrice}"/>
             </div>
         </div>

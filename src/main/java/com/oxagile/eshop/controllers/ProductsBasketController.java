@@ -20,14 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.oxagile.eshop.controllers.pools.PagesPathesPool.BASKET_PAGE;
-import static com.oxagile.eshop.controllers.pools.PagesPathesPool.HOME_PAGE;
 import static com.oxagile.eshop.controllers.pools.PagesPathesPool.PAGE_ERROR;
-import static com.oxagile.eshop.controllers.pools.PagesPathesPool.SIGN_IN_PAGE;
+import static com.oxagile.eshop.controllers.pools.PagesPathesPool.USER_DETAILS_PAGE_REDIRECT;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.ERROR_NAME_ATTRIBUTE;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.ORDER_TOTAL_PRICE_PARAM;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_ID_PARAM;
 import static com.oxagile.eshop.controllers.pools.ParamsPool.PRODUCT_LIST_ATTRIBUTE;
-import static com.oxagile.eshop.controllers.pools.ParamsPool.USER_ID_PARAM;
+import static com.oxagile.eshop.controllers.pools.ParamsPool.USER_EMAIL_PARAM;
 
 @Controller
 @SessionAttributes(PRODUCT_LIST_ATTRIBUTE)
@@ -36,7 +35,6 @@ public class ProductsBasketController {
     private static final Logger LOG = LogManager.getLogger(ProductsBasketController.class);
 
     private final ProductService productService;
-
     private final OrderService orderService;
 
     public ProductsBasketController(ProductService productService, OrderService orderService) {
@@ -88,22 +86,19 @@ public class ProductsBasketController {
         return modelAndView;
     }
 
-    @PostMapping("/products/order/save")
+    @PostMapping("/products/order/createOrder")
     public ModelAndView saveUserOrder(
-            @RequestParam(USER_ID_PARAM) String userId,
+            @RequestParam(value = USER_EMAIL_PARAM, required = false) String email,
             @RequestParam(ORDER_TOTAL_PRICE_PARAM) String totalPrice,
             @ModelAttribute(PRODUCT_LIST_ATTRIBUTE) List<Product> products,
             ModelAndView modelAndView,
             SessionStatus sessionStatus) {
         LOG.info("Call saveUserOrder method to try to save new User's order...");
         try {
-            if (orderService.isNotAuthorized(userId)) {
-                modelAndView.setViewName(SIGN_IN_PAGE);
-            } else {
-                orderService.createOrder(userId, totalPrice);
-                sessionStatus.setComplete();
-                modelAndView.setViewName(HOME_PAGE);
-            }
+            orderService.createOrder(email, totalPrice, products);
+            sessionStatus.setComplete();
+
+            modelAndView.setViewName(USER_DETAILS_PAGE_REDIRECT + email);
         } catch (Exception e) {
             LOG.debug("Failed to save user's order info!");
             modelAndView.addObject(ERROR_NAME_ATTRIBUTE, e.getMessage());

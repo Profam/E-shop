@@ -26,12 +26,16 @@ public class AuthenticationService implements UserDetailsService {
         this.userService = userService;
     }
 
-    @Transactional
     @SneakyThrows
+    @Transactional
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) {
         LOG.info("Calling loadUserByUsername: {}", email);
-        User user = userService.findByUserEmail(email);
+        User user = null;
+        if (userService.validateLoginData(email)) {
+            user = userService.findByUserEmail(email);
+        }
+        if (user == null) throw new UsernameNotFoundException("User not found: " + email);
         Set<GrantedAuthority> roles = new HashSet<>();
         roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         return new org.springframework.security.core.userdetails.User(
