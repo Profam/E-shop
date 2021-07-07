@@ -1,7 +1,6 @@
 <jsp:include page="header.jsp"/>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
-<c:set value="${sessionScope.userDetails}" var="user"/>
 <c:set var="myContext" value="${pageContext.request.contextPath}"/>
 
 <div class="container-fluid">
@@ -13,15 +12,15 @@
         </div>
         <div class="row">
             <div class="col-3">
-                <div class="p-2">"Имя: ${user.name}"</div>
+                <div class="p-2">"Имя: ${userDetails.name}"</div>
                 <br/>
-                <div class="p-2">"Фамилия: ${user.surname}"</div>
+                <div class="p-2">"Фамилия: ${userDetails.surname}"</div>
                 <br/>
             </div>
             <div class="col-3">
-                <div class="p-2">"День рождения: ${user.birthday}"</div>
+                <div class="p-2">"День рождения: ${userDetails.birthday}"</div>
                 <br/>
-                <div class="p-2">"Email: ${user.email}"</div>
+                <div class="p-2">"Email: ${userDetails.email}"</div>
             </div>
         </div>
     </c:if>

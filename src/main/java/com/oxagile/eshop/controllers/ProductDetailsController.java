@@ -27,8 +27,7 @@ public class ProductDetailsController {
     @GetMapping("/products/{productId}")
     public ModelAndView showProductDetails(
             @PathVariable(PRODUCT_ID_PARAM) int productId,
-            ModelAndView modelAndView
-    ) {
+            ModelAndView modelAndView) {
         LOG.info("Call showProductDetails method to show the details of the product...");
         try {
             modelAndView.addObject(PRODUCT_ATTRIBUTE, productService.getById(productId));

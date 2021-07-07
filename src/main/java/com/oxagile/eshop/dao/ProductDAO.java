@@ -1,14 +1,12 @@
 package com.oxagile.eshop.dao;
 
 import com.oxagile.eshop.domain.Product;
-import com.oxagile.eshop.exceptions.DaoException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import java.util.List;
-import java.util.Map;
+public interface ProductDAO extends BaseDAO<Product>, JpaSpecificationExecutor<Product> {
+    int countProductsByCategoryId(int categoryId);
 
-public interface ProductDAO extends BaseDAO<Product> {
-    List<Product> getProductsListByParams(Map<String, String> parameters, int currentPage, int recordsCount)
-            throws DaoException;
-
-    long getCountOfProductsFromCategory(int categoryId) throws DaoException;
+    Page<Product> findProductByCategoryId(int categoryId, Pageable pageable);
 }

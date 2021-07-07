@@ -6,9 +6,7 @@ import com.oxagile.eshop.exceptions.ServiceException;
 import java.sql.Date;
 
 public interface UserService extends BaseService<User> {
-    User getUserByCredits(String login, String pass) throws ServiceException;
-
-    boolean validateLoginData(User user, String email, String password) throws ServiceException;
+    boolean validateLoginData(String email) throws ServiceException;
 
     boolean validateBirthday(Date birthday) throws ServiceException;
 

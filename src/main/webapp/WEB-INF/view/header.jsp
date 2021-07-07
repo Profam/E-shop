@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8" %>
 <head>
     <!-- Required meta tags -->
@@ -47,11 +48,14 @@
         </c:if>
     </div>
     <div class="d-flex justify-content-end">
-        <c:if test="${not empty userDetails}">
-            <a class="nav-link" href="#">Привет, ${userDetails.name}</a>
+        <sec:authorize access="isAuthenticated()">
+            <a class="nav-link" href="#">Привет,  <b><sec:authentication property="principal.username"/></b>!</a>
             <a class="nav-link" href="${pageContext.request.contextPath}/logout">Выйти из аккаунта</a>
-        </c:if>
-        <a class="nav-link" href="${pageContext.request.contextPath}/user/details?userId=${userDetails.id}">Кабинет</a>
+            <a class="nav-link" href="${pageContext.request.contextPath}/user/details?email=<sec:authentication property="principal.username"/>">Кабинет</a>
+        </sec:authorize>
+        <sec:authorize access="!isAuthenticated()">
+        <a class="nav-link" href="${pageContext.request.contextPath}/login">Кабинет</a>
+        </sec:authorize>
         <a class="nav-link active" href="${pageContext.request.contextPath}/basket">Корзина</a>
     </div>
 </nav>

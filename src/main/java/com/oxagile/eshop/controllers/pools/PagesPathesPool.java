@@ -10,4 +10,5 @@ public interface PagesPathesPool {
     String BASKET_PAGE = "basket";
     String SEARCH_PAGE = "search";
     String USER_DETAILS_PAGE = "user-details";
+    String USER_DETAILS_PAGE_REDIRECT = "redirect:/user/details?email=";
 }
